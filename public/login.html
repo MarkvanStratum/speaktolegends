@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign In — Legend Speak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-archive: #f4f1ea; 
+      --marble: #ffffff;
+      --gold-legend: #c5a059;
+      --blue-deep: #1e293b;
+      --text-main: #33302c;
+      --border-accent: rgba(197, 160, 89, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0; padding: 0;
+      color: var(--text-main);
+      background-color: var(--bg-archive);
+      font-family: "EB Garamond", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .login-card {
+      background: var(--marble);
+      width: 100%;
+      max-width: 420px;
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+      border: 1px solid var(--border-accent);
+      text-align: center;
+    }
+
+    .logo-mark {
+      width: 60px;
+      height: 60px;
+      background: var(--blue-deep);
+      border: 2px solid var(--gold-legend);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      font-family: "Cinzel", serif;
+      color: var(--gold-legend);
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-family: "Cinzel", serif;
+      font-size: 24px;
+      color: var(--blue-deep);
+      margin: 0 0 10px;
+      letter-spacing: 1px;
+    }
+
+    p {
+      color: #64748b;
+      font-style: italic;
+      margin-bottom: 30px;
+      font-size: 18px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-family: "Cinzel", serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      color: var(--gold-legend);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 16px;
+      background: #fdfdfd;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--gold-legend);
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--gold-legend);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: "Cinzel", serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #b08d4a;
+      transform: translateY(-1px);
+    }
+
+    .error-box {
+      background: #fff1f2;
+      color: #be123c;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 15px;
+      margin-bottom: 20px;
+      display: none;
+      border: 1px solid #fecdd3;
+    }
+
+    .footer-links {
+      margin-top: 30px;
+      font-size: 16px;
+      color: #64748b;
+    }
+
+    .footer-links a {
+      color: var(--gold-legend);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-card">
+    <div class="logo-mark">L</div>
+    <h1>Legend Speak</h1>
+    <p>Re-enter the Archive</p>
+
+    <div id="errorBox" class="error-box"></div>
+
+    <form id="loginForm">
+      <label for="email">Email Address</label>
+      <input id="email" type="email" placeholder="scholar@example.com" required />
+
+      <label for="password">Security Cipher</label>
+      <input id="password" type="password" placeholder="••••••••" required />
+
+      <button type="submit" class="btn" id="loginBtn">Access Archives</button>
+    </form>
+
+    <div class="footer-links">
+      New to the Archive? <a href="/index.html">Create an Account</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorBox = document.getElementById('errorBox');
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("jwt", data.token);
+          window.location.href = "/"; 
+        } else {
+          errorBox.textContent = data.error || "Access denied. Please check your credentials.";
+          errorBox.style.display = 'block';
+        }
+      } catch (err) {
+        errorBox.textContent = "Unable to connect to the archive server.";
+        errorBox.style.display = 'block';
+      }
+    };
+  </script>
+</body>
+</html>

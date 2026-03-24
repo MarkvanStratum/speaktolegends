@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Membership Tiers — Legend Speak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-archive: #f4f1ea; 
+      --marble: #ffffff;
+      --gold-legend: #c5a059;
+      --blue-deep: #1e293b;
+      --text-main: #33302c;
+      --border-accent: rgba(197, 160, 89, 0.25);
+      --archive-shadow: 0 20px 60px rgba(0,0,0,0.07);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text-main); background-color: var(--bg-archive);
+      font-family: "EB Garamond", serif; padding: 60px 20px; text-align: center;
+    }
+
+    .header { max-width: 800px; margin: 0 auto 60px; }
+    .header h1 { font-family: "Cinzel", serif; font-size: 42px; color: var(--blue-deep); margin-bottom: 10px; }
+    .header p { font-style: italic; font-size: 22px; color: #64748b; }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--marble);
+      padding: 50px 30px;
+      border-radius: 12px;
+      border: 1px solid var(--border-accent);
+      box-shadow: var(--archive-shadow);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .card:hover { transform: translateY(-10px); }
+
+    .card.featured {
+      border: 2px solid var(--gold-legend);
+      transform: scale(1.05);
+      z-index: 2;
+    }
+    .card.featured:hover { transform: scale(1.05) translateY(-10px); }
+
+    .featured-label {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--gold-legend);
+      color: white;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-family: "Cinzel", serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .plan-name { font-family: "Cinzel", serif; font-size: 22px; margin-bottom: 15px; color: var(--blue-deep); }
+    .price { font-size: 48px; font-weight: bold; margin-bottom: 5px; color: var(--text-main); }
+    .duration { font-family: "Cinzel", serif; font-size: 12px; color: var(--gold-legend); letter-spacing: 1px; margin-bottom: 30px; }
+
+    .features { list-style: none; padding: 0; margin: 0 0 40px; text-align: left; }
+    .features li { padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 18px; color: #4a5568; }
+    .features li:last-child { border-bottom: none; }
+    .features li::before { content: "•"; color: var(--gold-legend); margin-right: 10px; font-weight: bold; }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: transparent;
+      border: 1px solid var(--gold-legend);
+      color: var(--gold-legend);
+      border-radius: 6px;
+      font-family: "Cinzel", serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover { background: var(--gold-legend); color: white; }
+    .featured .btn { background: var(--gold-legend); color: white; }
+    .featured .btn:hover { background: #b08d4a; border-color: #b08d4a; }
+
+    .back-link { display: inline-block; margin-top: 60px; color: var(--gold-legend); text-decoration: none; font-family: "Cinzel", serif; letter-spacing: 1px; }
+    .back-link:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .card.featured { transform: none; }
+      .card.featured:hover { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Archive Access</h1>
+    <p>Secure your passage to the greatest minds in history.</p>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="card">
+      <div class="plan-name">Historical Tier</div>
+      <div class="price">$29.95</div>
+      <div class="duration">One-Time Access • 30 Days</div>
+      <ul class="features">
+        <li>Consultation with any 1 Legend</li>
+        <li>Full Message History</li>
+        <li>Source Material Integration</li>
+      </ul>
+      <button class="btn" onclick="checkout('god')">Acquire Access</button>
+    </div>
+
+    <div class="card featured">
+      <div class="featured-label">Recommended</div>
+      <div class="plan-name">Legendary Tier</div>
+      <div class="price">$35.95</div>
+      <div class="duration">One-Time Access • 30 Days</div>
+      <ul class="features">
+        <li>Full Archive Access (All Figures)</li>
+        <li>Priority Processing</li>
+        <li>Deep Contextual Memory</li>
+      </ul>
+      <button class="btn" onclick="checkout('all')">Acquire Access</button>
+    </div>
+
+    <div class="card">
+      <div class="plan-name">Eternal Archive</div>
+      <div class="price">$49.95</div>
+      <div class="duration">One-Time Access • Unlimited</div>
+      <ul class="features">
+        <li>Unlimited Lifetime Consultations</li>
+        <li>All Future Legends Included</li>
+        <li>Permanent Archival Status</li>
+      </ul>
+      <button class="btn" onclick="checkout('lifetime')">Acquire Access</button>
+    </div>
+  </div>
+
+  <a href="/" class="back-link">Return to the Archives</a>
+
+  <script>
+    function checkout(planName) {
+      // Redirects to your checkout logic
+      window.location.href = "/checkout.html?plan=" + planName;
+    }
+  </script>
+</body>
+</html>

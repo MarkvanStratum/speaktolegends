@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Speak to Legends — Dialogue with History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-deep: #1a1a1c;
+      --panel-dark: #242426;
+      --accent-crimson: #a63446;
+      --text-bright: #e0e0e0;
+      --text-dim: #959595;
+      --slate-border: #333335;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; transition: all 0.25s ease; }
+    
+    body {
+      margin: 0; color: var(--text-bright); background-color: var(--bg-deep);
+      font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6;
+    }
+
+    .wrap { max-width: 1300px; margin: 0 auto; padding: 20px; }
+    body.logged-in .wrap { max-width: 100%; padding: 10px 30px; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0; border-bottom: 1px solid var(--slate-border); margin-bottom: 30px;
+    }
+    .brand { display: flex; align-items: center; gap: 15px; }
+    .logo-box { 
+      width: 45px; height: 45px; background: var(--accent-crimson); 
+      display: grid; place-items: center; border-radius: 8px;
+      font-family: 'Playfair Display', serif; color: white; font-size: 24px;
+    }
+    .brand h1 { font-family: 'Playfair Display', serif; font-size: 24px; margin: 0; letter-spacing: 0.5px; }
+
+    .hero { text-align: center; padding: 30px 0 50px; }
+    .hero h2 { font-family: 'Playfair Display', serif; font-size: 48px; margin: 0; color: var(--white); }
+    .hero p { color: var(--text-dim); font-size: 20px; font-weight: 300; margin-top: 10px; }
+
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 30px; }
+    body.logged-in .grid { grid-template-columns: 1fr; }
+
+    .card { background: var(--panel-dark); border: 1px solid var(--slate-border); border-radius: 20px; overflow: hidden; }
+
+    /* Auth Styling */
+    .tabs { display: flex; background: #1c1c1e; border-bottom: 1px solid var(--slate-border); }
+    .tab { flex: 1; padding: 18px; text-align: center; cursor: pointer; color: var(--text-dim); font-weight: 600; font-size: 14px; }
+    .tab.active { color: var(--white); background: var(--panel-dark); border-bottom: 2px solid var(--accent-crimson); }
+    
+    .auth-padding { padding: 35px; }
+    input { 
+      width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; 
+      border: 1px solid var(--slate-border); background: #1c1c1e; color: white; font-family: inherit;
+    }
+    input:focus { outline: none; border-color: var(--accent-crimson); }
+
+    .btn { 
+      padding: 16px; border-radius: 10px; cursor: pointer; border: none;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 1px; width: 100%; font-family: inherit;
+    }
+    .btn.primary { background: var(--accent-crimson); color: white; }
+    .btn.outline { background: transparent; border: 1px solid var(--slate-border); color: var(--text-bright); }
+    .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+
+    /* Chat Styling */
+    .chat-shell { display: flex; flex-direction: column; height: 75vh; }
+    body.logged-in .chat-shell { height: 82vh; }
+
+    .profile-nav { 
+      display: flex; gap: 12px; padding: 20px; overflow-x: auto; 
+      background: #1c1c1e; border-bottom: 1px solid var(--slate-border);
+      scrollbar-width: none;
+    }
+    .profile-nav::-webkit-scrollbar { display: none; }
+    
+    .pitem { 
+      padding: 10px 22px; border-radius: 50px; background: var(--panel-dark); 
+      border: 1px solid var(--slate-border); cursor: pointer; white-space: nowrap;
+      font-size: 14px; font-weight: 600; color: var(--text-dim);
+    }
+    .pitem.active { background: var(--accent-crimson); color: white; border-color: var(--accent-crimson); }
+
+    .chat-log { 
+      flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; 
+      background: linear-gradient(to bottom, #242426, #1a1a1c);
+    }
+    .bubble { padding: 18px 24px; border-radius: 20px; max-width: 80%; font-size: 17px; line-height: 1.6; }
+    .bubble.them { 
+      background: #333335; color: var(--white); align-self: flex-start; border-bottom-left-radius: 4px;
+      font-family: 'Crimson Pro', serif; font-size: 20px;
+    }
+    .bubble.me { background: var(--accent-crimson); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+    .input-row { padding: 30px 40px; display: flex; gap: 15px; background: var(--panel-dark); border-top: 1px solid var(--slate-border); }
+    textarea { 
+      flex: 1; background: #1c1c1e; border: 1px solid var(--slate-border); border-radius: 12px; 
+      padding: 15px; color: white; resize: none; font-family: inherit; height: 55px; outline: none;
+    }
+
+    .hide { display: none !important; }
+    #limitModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 999; backdrop-filter: blur(8px); }
+
+    @media (max-width: 950px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <div class="wrap" id="mainWrap">
+    <header>
+      <div class="brand">
+        <div class="logo-box">S</div>
+        <h1>Speak to Legends</h1>
+      </div>
+      <button class="btn outline" id="logoutBtn" style="display:none; width: auto;">Logout</button>
+    </header>
+
+    <section class="hero" id="heroText">
+      <h2>Voices of the Past</h2>
+      <p>Direct dialogue with the minds that changed the course of time.</p>
+    </section>
+
+    <div class="grid">
+      <div id="authContainer">
+        <div class="card">
+          <div class="tabs">
+            <div id="tLogin" class="tab active">Sign In</div>
+            <div id="tReg" class="tab">New Account</div>
+          </div>
+          <div class="auth-padding">
+            <div id="loginBox">
+              <input id="lEmail" type="email" placeholder="Email Address" />
+              <input id="lPass" type="password" placeholder="Password" />
+              <button class="btn primary" id="loginBtn">Enter Archives</button>
+            </div>
+            <div id="regBox" class="hide">
+              <input id="rEmail" type="email" placeholder="Email Address" />
+              <input id="rPass" type="password" placeholder="Choose Password" />
+              <button class="btn primary" id="registerBtn">Create Account</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card chat-shell" id="chatCard">
+        <div class="profile-nav" id="profiles"></div>
+        
+        <div style="padding: 15px 40px; border-bottom: 1px solid var(--slate-border); display: flex; align-items: center; gap: 15px;">
+           <div id="chatTitle" style="font-family: 'Playfair Display', serif; font-size: 22px; color: var(--white);">Select a Legend</div>
+        </div>
+
+        <div class="chat-log" id="chatLog">
+          <div id="emptyNote" style="margin: auto; text-align: center; color: var(--text-dim); font-style: italic;">
+            Select a figure from the archive above to begin your dialogue.
+          </div>
+        </div>
+
+        <div class="input-row">
+          <textarea id="chatInput" placeholder="Message..." disabled></textarea>
+          <button class="btn primary" id="sendBtn" disabled style="width: 120px;">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="limitModal">
+    <div class="card" style="max-width: 450px; width: 95%; padding: 45px; text-align: center; border-top: 5px solid var(--accent-crimson);">
+      <h3 style="font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 15px;">Archives Restricted</h3>
+      <p style="color: var(--text-dim); margin-bottom: 30px;">Your free consultations have been completed. Upgrade your access to continue speaking with the greats.</p>
+      <button class="btn primary" onclick="window.location.href='/pricing.html'">View Membership Plans</button>
+      <button class="btn outline" style="margin-top: 15px; border:none;" onclick="document.getElementById('limitModal').style.display='none'">Dismiss</button>
+    </div>
+  </div>
+
+  <footer style="margin-top: 60px; padding: 40px; text-align: center; border-top: 1px solid var(--slate-border); font-size: 14px; color: var(--text-dim);">
+    <a href="/privacy-policy.html" style="color: inherit; text-decoration: none; margin: 0 15px;">Privacy Policy</a>
+    <a href="/terms-and-conditions.html" style="color: inherit; text-decoration: none; margin: 0 15px;">Terms & Conditions</a>
+    <div style="margin-top: 10px; opacity: 0.5;">© 2024 Speak to Legends</div>
+  </footer>
+
+  <script>
+    /* 100% ORIGINAL LOGIC PRESERVED FROM index.html */
+    const $ = (id) => document.getElementById(id);
+    const API_BASE = "";
+    let selectedId = null;
+
+    const getToken = () => localStorage.getItem("jwt") || "";
+    const authHeaders = () => ({ "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` });
+
+    // Tab Switching
+    $("tLogin").onclick = () => { 
+      $("tLogin").classList.add("active"); $("tReg").classList.remove("active"); 
+      $("loginBox").classList.remove("hide"); $("regBox").classList.add("hide"); 
+    };
+    $("tReg").onclick = () => { 
+      $("tReg").classList.add("active"); $("tLogin").classList.remove("active"); 
+      $("regBox").classList.remove("hide"); $("loginBox").classList.add("hide"); 
+    };
+
+    async function loadProfiles() {
+      const res = await fetch(`${API_BASE}/api/profiles`);
+      const profiles = await res.json();
+      const container = $("profiles");
+      container.innerHTML = "";
+      profiles.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "pitem";
+        div.innerHTML = `<strong>${p.name}</strong>`;
+        div.onclick = () => selectProfile(p, div);
+        container.appendChild(div);
+      });
+    }
+
+    function selectProfile(p, el) {
+      document.querySelectorAll(".pitem").forEach(i => i.classList.remove("active"));
+      el.classList.add("active");
+      selectedId = p.id;
+      $("chatTitle").innerText = p.name;
+      $("emptyNote").style.display = "none";
+      $("chatLog").innerHTML = "";
+      $("chatInput").disabled = false;
+      $("sendBtn").disabled = false;
+
+      if (getToken()) {
+        loadHistory(p.id);
+      } else {
+        addMsg("them", `I am ${p.name}. I can provide a single insight before you must register to continue our dialogue.`);
+      }
+    }
+
+    async function loadHistory(cid) {
+      const res = await fetch(`${API_BASE}/api/chat/history?characterId=${cid}`, { headers: authHeaders() });
+      if (res.ok) {
+        const history = await res.json();
+        history.forEach(m => addMsg(m.from_user ? "me" : "them", m.text));
+      }
+    }
+
+    function addMsg(side, text) {
+      const d = document.createElement("div");
+      d.className = `bubble ${side}`;
+      d.innerText = text;
+      $("chatLog").appendChild(d);
+      $("chatLog").scrollTop = $("chatLog").scrollHeight;
+    }
+
+    $("sendBtn").onclick = async () => {
+      const text = $("chatInput").value;
+      if (!text || !selectedId) return;
+      addMsg("me", text);
+      $("chatInput").value = "";
+
+      if (!getToken()) {
+        addMsg("them", "To unlock further dialogue and preserve this conversation, please register an account.");
+        $("chatInput").disabled = true; $("sendBtn").disabled = true;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ characterId: selectedId, message: text })
+        });
+        const data = await res.json();
+        if (res.ok) { addMsg("them", data.reply); } 
+        else if (res.status === 403) { $("limitModal").style.display = "flex"; }
+      } catch(e) { alert("Connection lost."); }
+    };
+
+    $("loginBtn").onclick = async () => {
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: $("lEmail").value, password: $("lPass").value })
+      });
+      if (res.ok) { const d = await res.json(); localStorage.setItem("jwt", d.token); location.reload(); }
+      else alert((await res.json()).error);
+    };
+
+    $("registerBtn").onclick = async () => {
+        const res = await fetch(`${API_BASE}/api/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: $("rEmail").value, password: $("rPass").value })
+      });
+      if (res.ok) { alert("Welcome to Speak to Legends. Please Sign In."); $("tLogin").click(); }
+      else alert((await res.json()).error);
+    };
+
+    $("logoutBtn").onclick = () => { localStorage.removeItem("jwt"); location.reload(); };
+
+    window.onload = () => {
+      loadProfiles();
+      if (getToken()) {
+        document.body.classList.add("logged-in");
+        $("authContainer").classList.add("hide");
+        $("logoutBtn").style.display = "block";
+        $("heroText").innerHTML = "<h2>Archives Accessible</h2><p>Your dialogue with history continues.</p>";
+      }
+    };
+  </script>
+</body>
+</html>

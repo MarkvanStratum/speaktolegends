@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access — Speak to Legends</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #1a1a1c;
+            --panel-dark: #242426;
+            --accent-crimson: #a63446;
+            --text-bright: #e0e0e0;
+            --text-dim: #959595;
+            --slate-border: #333335;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; transition: all 0.25s ease; }
+
+        body { 
+            background: var(--bg-deep); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: var(--text-bright);
+        }
+
+        .checkout-box { 
+            background: var(--panel-dark); 
+            padding: 50px 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4); 
+            width: 100%; 
+            max-width: 480px; 
+            border: 1px solid var(--slate-border); 
+            position: relative;
+        }
+
+        /* Branding match from Index */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-box { 
+            width: 55px; 
+            height: 55px; 
+            background: var(--accent-crimson); 
+            display: grid; 
+            place-items: center; 
+            border-radius: 12px;
+            font-family: 'Playfair Display', serif; 
+            color: white; 
+            font-size: 28px;
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 20px rgba(166, 52, 70, 0.3);
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+            color: var(--white);
+            margin-bottom: 5px;
+        }
+
+        h2 { 
+            text-align: center; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            font-size: 14px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim); 
+            margin-bottom: 35px; 
+            font-weight: 600;
+        }
+
+        /* Stripe Element Styling Container */
+        #payment-element { 
+            margin-bottom: 30px;
+            padding: 10px;
+            background: #1c1c1e;
+            border-radius: 12px;
+            border: 1px solid var(--slate-border);
+        }
+
+        .btn {
+            background: var(--accent-crimson);
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(166, 52, 70, 0.2);
+        }
+
+        .btn:hover { 
+            filter: brightness(1.2); 
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(166, 52, 70, 0.3);
+        }
+
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+
+        #error-message { 
+            color: #ff4d4d; 
+            text-align: center; 
+            margin-top: 20px; 
+            font-size: 14px; 
+            font-weight: 500;
+        }
+
+        .back-link { 
+            display: block; 
+            text-align: center; 
+            margin-top: 30px; 
+            color: var(--text-dim); 
+            text-decoration: none; 
+            font-size: 13px; 
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover { color: var(--white); }
+
+        /* Customizing Stripe appearance via JS later, but this ensures layout matches */
+    </style>
+</head>
+<body>
+    <div class="checkout-box">
+        <div class="logo-container">
+            <div class="logo-box">S</div>
+            <div class="logo-text">Speak to Legends</div>
+        </div>
+        
+        <h2>Secure Archive Access</h2>
+        
+        <form id="payment-form">
+            <div id="payment-element">
+                </div>
+            <button id="submit" class="btn">Confirm Access</button>
+            <div id="error-message"></div>
+        </form>
+
+        <a href="/pricing.html" class="back-link">Return to Tiers</a>
+    </div>
+
+    <script>
+        // Restored your specific Stripe Public Key and Logic
+        const stripe = Stripe("pk_live_51TEADzFzC4x1DZ5a8x146yrAFj2h0plgYC580mFxz0KpOGaMyIOn6O3FJKqvXoJfn2dnFSoYtW23sguR7PcyKzID00lHatt76H");
+        const params = new URLSearchParams(window.location.search);
+        const plan = params.get('plan');
+        const token = localStorage.getItem("jwt");
+
+        let elements;
+
+        async function initialize() {
+            try {
+                const response = await fetch("/api/create-payment-intent", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token 
+                    },
+                    body: JSON.stringify({ plan: plan }),
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('error-message').innerText = data.error;
+                    return;
+                }
+
+                const { clientSecret } = data;
+                
+                // Styling Stripe Elements to match the dark theme
+                const appearance = {
+                    theme: 'night',
+                    variables: {
+                        colorPrimary: '#a63446',
+                        colorBackground: '#1c1c1e',
+                        colorText: '#e0e0e0',
+                        colorDanger: '#ff4d4d',
+                        fontFamily: 'Plus Jakarta Sans, sans-serif',
+                        spacingUnit: '4px',
+                        borderRadius: '8px',
+                    },
+                };
+
+                elements = stripe.elements({ clientSecret, appearance });
+                const paymentElement = elements.create("payment");
+                paymentElement.mount("#payment-element");
+            } catch (err) {
+                document.getElementById('error-message').innerText = "Failed to initialize payment sanctuary.";
+            }
+        }
+
+        document.querySelector("#payment-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitBtn = document.querySelector("#submit");
+            submitBtn.disabled = true;
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    // Redirect back to home with a success flag as in original
+                    return_url: window.location.origin + "/?payment=success",
+                },
+            });
+
+            if (error) {
+                document.querySelector("#error-message").textContent = error.message;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Validation logic preserved
+        if (!token) {
+            alert("Please sign in to access the archives.");
+            window.location.href = "/";
+        } else if (!plan) {
+            alert("No tier selected.");
+            window.location.href = "/pricing.html";
+        } else {
+            initialize();
+        }
+    </script>
+</body>
+</html>
